@@ -6,6 +6,9 @@ import { commonStyles, buttonStyles, colors } from '../styles/commonStyles';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
 
+// Store input values per tail number to persist across navigation
+const inputStorage: { [key: string]: string } = {};
+
 export default function CalculatorScreen() {
   const { tailNumber } = useLocalSearchParams<{ tailNumber: string }>();
   const [inputValue, setInputValue] = useState('');
@@ -14,7 +17,23 @@ export default function CalculatorScreen() {
 
   useEffect(() => {
     console.log('Calculator screen opened for:', tailNumber);
+    
+    // Restore the input value for this tail number if it exists
+    if (tailNumber && inputStorage[tailNumber]) {
+      const savedInput = inputStorage[tailNumber];
+      setInputValue(savedInput);
+      calculateResult(savedInput);
+      console.log('Restored input value:', savedInput, 'for tail number:', tailNumber);
+    }
   }, [tailNumber]);
+
+  // Save input value whenever it changes
+  useEffect(() => {
+    if (tailNumber) {
+      inputStorage[tailNumber] = inputValue;
+      console.log('Saved input value:', inputValue, 'for tail number:', tailNumber);
+    }
+  }, [inputValue, tailNumber]);
 
   const calculateResult = (value: string) => {
     const number = parseFloat(value);
@@ -45,6 +64,13 @@ export default function CalculatorScreen() {
     setInputValue('');
     setResult(null);
     setShowAdditionalResults(false);
+    
+    // Clear the stored value for this tail number
+    if (tailNumber) {
+      delete inputStorage[tailNumber];
+      console.log('Cleared stored input for tail number:', tailNumber);
+    }
+    
     console.log('Cleared calculation');
   };
 
