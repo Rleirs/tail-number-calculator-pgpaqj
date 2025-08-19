@@ -2,23 +2,57 @@
 import { Text, View, TextInput, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { commonStyles, buttonStyles, colors } from '../styles/commonStyles';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
 
+const STORAGE_KEY = 'aircraft_tail_numbers';
+
 export default function HomeScreen() {
   const [tailNumbers, setTailNumbers] = useState<string[]>([]);
   const [newTailNumber, setNewTailNumber] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     console.log('HomeScreen mounted');
-    // Load saved tail numbers from storage if needed
     loadTailNumbers();
   }, []);
 
-  const loadTailNumbers = () => {
-    // For now, we'll use local state. In a real app, you might use AsyncStorage
-    console.log('Loading tail numbers from storage');
+  // Save tail numbers to AsyncStorage whenever the list changes
+  useEffect(() => {
+    if (!isLoading) {
+      saveTailNumbers();
+    }
+  }, [tailNumbers, isLoading]);
+
+  const loadTailNumbers = async () => {
+    try {
+      console.log('Loading tail numbers from storage');
+      const storedTailNumbers = await AsyncStorage.getItem(STORAGE_KEY);
+      if (storedTailNumbers) {
+        const parsedTailNumbers = JSON.parse(storedTailNumbers);
+        setTailNumbers(parsedTailNumbers);
+        console.log('Loaded tail numbers:', parsedTailNumbers);
+      } else {
+        console.log('No stored tail numbers found');
+      }
+    } catch (error) {
+      console.error('Error loading tail numbers:', error);
+      Alert.alert('Error', 'Failed to load saved aircraft list');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveTailNumbers = async () => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(tailNumbers));
+      console.log('Saved tail numbers to storage:', tailNumbers);
+    } catch (error) {
+      console.error('Error saving tail numbers:', error);
+      Alert.alert('Error', 'Failed to save aircraft list');
+    }
   };
 
   const addTailNumber = () => {
@@ -60,6 +94,15 @@ export default function HomeScreen() {
     console.log('Navigating to calculator for:', tailNumber);
     router.push(`/calculator?tailNumber=${encodeURIComponent(tailNumber)}`);
   };
+
+  if (isLoading) {
+    return (
+      <View style={[commonStyles.container, commonStyles.centerContent]}>
+        <Icon name="airplane" size={48} color={colors.primary} />
+        <Text style={[commonStyles.text, { marginTop: 16 }]}>Loading aircraft...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={commonStyles.container}>
