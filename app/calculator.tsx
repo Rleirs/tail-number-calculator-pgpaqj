@@ -2,7 +2,8 @@
 import { Text, View, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState, useEffect } from 'react';
-import { commonStyles, buttonStyles, colors } from '../styles/commonStyles';
+import { createCommonStyles, createButtonStyles } from '../styles/commonStyles';
+import { useTheme } from '../contexts/ThemeContext';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
 
@@ -14,6 +15,9 @@ export default function CalculatorScreen() {
   const [inputValue, setInputValue] = useState('');
   const [result, setResult] = useState<number | null>(null);
   const [showAdditionalResults, setShowAdditionalResults] = useState(false);
+  const { theme } = useTheme();
+  const commonStyles = createCommonStyles(theme);
+  const buttonStyles = createButtonStyles(theme);
 
   useEffect(() => {
     console.log('Calculator screen opened for:', tailNumber);
@@ -87,7 +91,7 @@ export default function CalculatorScreen() {
       {/* Header */}
       <View style={commonStyles.header}>
         <TouchableOpacity onPress={goBack} style={{ padding: 4 }}>
-          <Icon name="arrow-back" size={24} color={colors.text} />
+          <Icon name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
         <Text style={commonStyles.headerTitle}>
           Calculator - {tailNumber}
@@ -101,6 +105,7 @@ export default function CalculatorScreen() {
           <TextInput
             style={[commonStyles.input, { fontSize: 18, textAlign: 'center' }]}
             placeholder="Enter a number"
+            placeholderTextColor={theme.textSecondary}
             value={inputValue}
             onChangeText={handleInputChange}
             keyboardType="numeric"
@@ -124,7 +129,7 @@ export default function CalculatorScreen() {
               text={showAdditionalResults ? "Hide Additional Results" : "Show Additional Results"}
               onPress={toggleAdditionalResults}
               style={buttonStyles.secondary}
-              textStyle={{ color: colors.primary }}
+              textStyle={{ color: theme.primary }}
             />
           </View>
         )}
@@ -163,7 +168,7 @@ export default function CalculatorScreen() {
               text="Clear All"
               onPress={clearCalculation}
               style={buttonStyles.secondary}
-              textStyle={{ color: colors.textSecondary }}
+              textStyle={{ color: theme.textSecondary }}
             />
           </View>
         )}

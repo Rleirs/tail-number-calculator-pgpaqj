@@ -3,7 +3,8 @@ import { Text, View, TextInput, ScrollView, TouchableOpacity, Alert } from 'reac
 import { router } from 'expo-router';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { commonStyles, buttonStyles, colors } from '../styles/commonStyles';
+import { createCommonStyles, createButtonStyles } from '../styles/commonStyles';
+import { useTheme } from '../contexts/ThemeContext';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
 
@@ -13,6 +14,9 @@ export default function HomeScreen() {
   const [tailNumbers, setTailNumbers] = useState<string[]>([]);
   const [newTailNumber, setNewTailNumber] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const { theme, isDarkMode, toggleTheme } = useTheme();
+  const commonStyles = createCommonStyles(theme);
+  const buttonStyles = createButtonStyles(theme);
 
   useEffect(() => {
     console.log('HomeScreen mounted');
@@ -98,7 +102,7 @@ export default function HomeScreen() {
   if (isLoading) {
     return (
       <View style={[commonStyles.container, commonStyles.centerContent]}>
-        <Icon name="airplane" size={48} color={colors.primary} />
+        <Icon name="airplane" size={48} color={theme.primary} />
         <Text style={[commonStyles.text, { marginTop: 16 }]}>Loading aircraft...</Text>
       </View>
     );
@@ -107,17 +111,39 @@ export default function HomeScreen() {
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.content}>
-        <Text style={commonStyles.title}>Aircraft Management</Text>
-        <Text style={commonStyles.textSecondary}>
-          Add aircraft tail numbers and access their calculators
-        </Text>
+        {/* Header with theme toggle */}
+        <View style={[commonStyles.row, { marginBottom: 24 }]}>
+          <View style={{ flex: 1 }}>
+            <Text style={commonStyles.title}>Aircraft Management</Text>
+            <Text style={commonStyles.textSecondary}>
+              Add aircraft tail numbers and access their calculators
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={toggleTheme}
+            style={{
+              padding: 12,
+              borderRadius: 8,
+              backgroundColor: theme.backgroundAlt,
+              borderWidth: 1,
+              borderColor: theme.border,
+            }}
+          >
+            <Icon 
+              name={isDarkMode ? "sunny" : "moon"} 
+              size={24} 
+              color={theme.text} 
+            />
+          </TouchableOpacity>
+        </View>
 
-        <View style={[commonStyles.section, { marginTop: 32 }]}>
+        <View style={[commonStyles.section, { marginTop: 8 }]}>
           <Text style={commonStyles.subtitle}>Add New Aircraft</Text>
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <TextInput
               style={[commonStyles.input, { flex: 1 }]}
               placeholder="Enter tail number (e.g., N123AB)"
+              placeholderTextColor={theme.textSecondary}
               value={newTailNumber}
               onChangeText={setNewTailNumber}
               autoCapitalize="characters"
@@ -135,7 +161,7 @@ export default function HomeScreen() {
           <Text style={commonStyles.subtitle}>Aircraft List</Text>
           {tailNumbers.length === 0 ? (
             <View style={[commonStyles.card, commonStyles.centerContent, { padding: 40 }]}>
-              <Icon name="airplane" size={48} color={colors.textSecondary} />
+              <Icon name="airplane" size={48} color={theme.textSecondary} />
               <Text style={[commonStyles.textSecondary, { marginTop: 16, textAlign: 'center' }]}>
                 No aircraft added yet.{'\n'}Add your first tail number above.
               </Text>
@@ -151,7 +177,7 @@ export default function HomeScreen() {
                 >
                   <View style={commonStyles.row}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                      <Icon name="airplane" size={24} color={colors.primary} />
+                      <Icon name="airplane" size={24} color={theme.primary} />
                       <View style={{ marginLeft: 12 }}>
                         <Text style={[commonStyles.text, { fontWeight: '600' }]}>
                           {tailNumber}
@@ -167,7 +193,7 @@ export default function HomeScreen() {
                         style={{
                           padding: 8,
                           borderRadius: 6,
-                          backgroundColor: colors.primary,
+                          backgroundColor: theme.primary,
                         }}
                       >
                         <Icon name="calculator" size={16} color="white" />
@@ -177,7 +203,7 @@ export default function HomeScreen() {
                         style={{
                           padding: 8,
                           borderRadius: 6,
-                          backgroundColor: colors.error,
+                          backgroundColor: theme.error,
                         }}
                       >
                         <Icon name="trash" size={16} color="white" />

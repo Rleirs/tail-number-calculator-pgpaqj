@@ -1,17 +1,21 @@
+
 import { Stack, useGlobalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Platform, SafeAreaView } from 'react-native';
-import { commonStyles } from '../styles/commonStyles';
 import { useEffect, useState } from 'react';
 import { setupErrorLogging } from '../utils/errorLogger';
+import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
+import { createCommonStyles } from '../styles/commonStyles';
 
 const STORAGE_KEY = 'emulated_device';
 
-export default function RootLayout() {
+function RootLayoutContent() {
   const actualInsets = useSafeAreaInsets();
   const { emulate } = useGlobalSearchParams<{ emulate?: string }>();
   const [storedEmulate, setStoredEmulate] = useState<string | null>(null);
+  const { theme, isDarkMode } = useTheme();
+  const commonStyles = createCommonStyles(theme);
 
   useEffect(() => {
     // Set up global error logging
@@ -46,21 +50,29 @@ export default function RootLayout() {
   }
 
   return (
+    <SafeAreaView style={[commonStyles.wrapper, {
+        paddingTop: insetsToUse.top,
+        paddingBottom: insetsToUse.bottom,
+        paddingLeft: insetsToUse.left,
+        paddingRight: insetsToUse.right,
+     }]}>
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: 'default',
+        }}
+      />
+    </SafeAreaView>
+  );
+}
+
+export default function RootLayout() {
+  return (
     <SafeAreaProvider>
-      <SafeAreaView style={[commonStyles.wrapper, {
-          paddingTop: insetsToUse.top,
-          paddingBottom: insetsToUse.bottom,
-          paddingLeft: insetsToUse.left,
-          paddingRight: insetsToUse.right,
-       }]}>
-        <StatusBar style="light" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            animation: 'default',
-          }}
-        />
-      </SafeAreaView>
+      <ThemeProvider>
+        <RootLayoutContent />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
