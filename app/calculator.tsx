@@ -81,18 +81,6 @@ export default function CalculatorScreen() {
           />
         </View>
 
-        {/* Formula Display */}
-        <View style={[commonStyles.card, { backgroundColor: colors.backgroundAlt }]}>
-          <Text style={[commonStyles.textSecondary, { textAlign: 'center' }]}>
-            Formula: (Number ÷ 2) - 50
-          </Text>
-          {inputValue && !isNaN(parseFloat(inputValue)) && (
-            <Text style={[commonStyles.text, { textAlign: 'center', marginTop: 8 }]}>
-              ({inputValue} ÷ 2) - 50 = {((parseFloat(inputValue) / 2) - 50).toFixed(2)}
-            </Text>
-          )}
-        </View>
-
         {/* Main Result */}
         {result !== null && (
           <View style={commonStyles.resultCard}>
@@ -138,15 +126,6 @@ export default function CalculatorScreen() {
                   {rightResult?.toFixed(2)}
                 </Text>
               </View>
-            </View>
-
-            <View style={[commonStyles.card, { marginTop: 16 }]}>
-              <Text style={[commonStyles.textSecondary, { textAlign: 'center' }]}>
-                Left: {result?.toFixed(2)} + 100 = {leftResult?.toFixed(2)}
-              </Text>
-              <Text style={[commonStyles.textSecondary, { textAlign: 'center', marginTop: 4 }]}>
-                Right: {result?.toFixed(2)} - 100 = {rightResult?.toFixed(2)}
-              </Text>
             </View>
           </View>
         )}
