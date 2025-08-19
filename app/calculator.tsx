@@ -16,10 +16,11 @@ export default function CalculatorScreen() {
     console.log('Calculator screen opened for:', tailNumber);
   }, [tailNumber]);
 
-  const calculateResult = () => {
-    const number = parseFloat(inputValue);
-    if (isNaN(number)) {
-      console.log('Invalid input:', inputValue);
+  const calculateResult = (value: string) => {
+    const number = parseFloat(value);
+    if (isNaN(number) || value === '') {
+      setResult(null);
+      console.log('Invalid input or empty:', value);
       return;
     }
 
@@ -27,6 +28,12 @@ export default function CalculatorScreen() {
     const calculatedResult = (number / 2) - 50;
     setResult(calculatedResult);
     console.log('Calculated result:', calculatedResult, 'for input:', number);
+  };
+
+  const handleInputChange = (value: string) => {
+    setInputValue(value);
+    // Calculate instantly as user types
+    calculateResult(value);
   };
 
   const toggleAdditionalResults = () => {
@@ -69,17 +76,9 @@ export default function CalculatorScreen() {
             style={[commonStyles.input, { fontSize: 18, textAlign: 'center' }]}
             placeholder="Enter a number"
             value={inputValue}
-            onChangeText={setInputValue}
+            onChangeText={handleInputChange}
             keyboardType="numeric"
-            onSubmitEditing={calculateResult}
           />
-          <View style={commonStyles.buttonContainer}>
-            <Button
-              text="Calculate"
-              onPress={calculateResult}
-              style={buttonStyles.primary}
-            />
-          </View>
         </View>
 
         {/* Formula Display */}
